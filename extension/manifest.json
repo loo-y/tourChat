@@ -1,0 +1,16 @@
+{
+    "manifest_version": 3,
+    "name": "SideBar Tour Chat",
+    "description": "SideBar Tour Chat",
+    "version": "1.0",
+    "permissions": ["activeTab", "tabs", "scripting", "sidePanel"],
+    "side_panel": {
+        "default_path": "sidepanel.html"
+    },
+    "action": {
+        "default_title": "Click to open panel"
+    },
+    "background": {
+        "service_worker": "service-worker.js"
+    }
+}
