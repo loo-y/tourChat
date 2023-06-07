@@ -1,0 +1,56 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "extends": [
+    "next/core-web-vitals",
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "react-app"
+  ],
+  "plugins": [
+    "@typescript-eslint",
+    "jsx-a11y"
+  ],
+  "ignorePatterns": [
+    "src/lib/",
+    "public/",
+    "**/__test__/"
+  ],
+  "globals": {
+    "react": "writable",
+    "JSX": "writable"
+  },
+  "rules": {
+    "eqeqeq": 0,
+    "no-unused-vars": 0,
+    "no-unused-expressions": 0,
+    "no-dupe-args": "error", //重复参数检测
+    "no-dupe-keys": "warn", //字面量重复key检测
+    "no-const-assign": "error", // 禁止修改const声明的变量
+    "no-undef": "error", // 不能有未定义的变量
+    "react-hooks/rules-of-hooks": "error", // Checks rules of Hooks
+    "react-hooks/exhaustive-deps": "warn", // Checks effect dependencies
+    "no-restricted-imports": 0, // ["error",{"patterns": ["moment", "moment/*"]}]
+    // 临时兼容规则,后续待取消
+    "@typescript-eslint/no-explicit-any": 0,
+    "prefer-const": 0,
+    "@typescript-eslint/ban-ts-comment": 0,
+    "@typescript-eslint/no-empty-function": 0,
+    "no-prototype-builtins": 0,
+    "no-extra-boolean-cast": 0,
+    "no-empty": 0,
+    "no-constant-condition": 0,
+    "@typescript-eslint/no-var-requires": 0,
+    "@typescript-eslint/no-use-before-define": 0,
+    "@typescript-eslint/camelcase": 0,
+    "no-case-declarations": 0,
+    "no-irregular-whitespace": [
+      "error",
+      {
+        "skipComments": true
+      }
+    ],
+    "no-var": 0
+  }
+}
