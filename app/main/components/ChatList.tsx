@@ -9,6 +9,7 @@ const ChatList = () => {
 
     const handleTest = () => {
         console.log(`this is handleTest`)
+        alert(`this is handleTest`)
     }
     return (
         <div className="mx-auto w-full max-w-6xl rounded-2xl bg-white p-2">

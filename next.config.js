@@ -5,6 +5,11 @@ const nextConfig = {
     // trailingSlash: true,
     // Optional: Change the output directory `out` -> `dist`
     distDir: 'extension/dist',
+    cleanDistDir: true,
+    // TODO: after build, we need to move inline script from main.html into a single js file,
+    // otherwise, chrome will not allow inline script to run
+    assetPrefix: ".",
+    productionBrowserSourceMaps: true,
     reactStrictMode: true,
     webpack: (config, options) => {
         config.experiments = {
