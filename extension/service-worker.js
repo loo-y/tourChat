@@ -1,6 +1,7 @@
 const Match_URL = 'ctrip.com'
 
 console.log(`test===>`, Match_URL)
+const mainPage = './dist/main.html'
 chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
     console.log(`tab`, tab, tab.url)
     if (!tab.url) return
@@ -9,7 +10,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
     if (url.origin.includes(Match_URL)) {
         await chrome.sidePanel.setOptions({
             tabId,
-            path: 'sidepanel.html',
+            path: mainPage,
             enabled: true,
         })
         console.log(`chrome.sidePanel`)
@@ -18,7 +19,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
         // Disables the side panel on all other sites
         await chrome.sidePanel.setOptions({
             tabId,
-            path: 'sidepanel.html',
+            path: mainPage,
             enabled: false,
         })
     }
