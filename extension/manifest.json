@@ -15,5 +15,13 @@
     },
     "background": {
         "service_worker": "service-worker.js"
-    }
+    },
+    "content_scripts": [
+        {
+          "js": ["content-script.js"],
+          "matches": [
+            "https://vacations.ctrip.com/travel/*"
+          ]
+        }
+    ]
 }
