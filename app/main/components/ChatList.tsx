@@ -1,6 +1,6 @@
 'use client'
 import { useAppSelector, useAppDispatch } from '@/app/hooks'
-import { getMainState } from '../slice'
+import { getMainState, chatListAsync } from '../slice'
 import { useCallback, useEffect, useState } from 'react'
 declare var chrome: any
 
@@ -28,6 +28,7 @@ const ChatList = () => {
                 console.log(response)
             }
         )
+        dispatch(chatListAsync(1))
     }
 
     return (

@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { AppState, AppThunk } from '../store'
 import * as API from './API'
-import { fetchCount } from './API'
+import { fetchCount, fetchChatList } from './API'
 import { MainState } from './interface'
 import _ from 'lodash'
 import type { AsyncThunk } from '@reduxjs/toolkit'
@@ -17,7 +17,7 @@ type RequestCombo = {
 }
 const apiRequestQueue: Array<RequestCombo> = []
 // define a thunk action to wrap api request
-export const makeApiRequestInQueue = createAsyncThunk(
+const makeApiRequestInQueue = createAsyncThunk(
     'mainSlice/makeApiRequestInQueue',
     async (requestCombo: RequestCombo, { dispatch, getState }: any) => {
         const mainState = getMainState(getState())
@@ -71,6 +71,20 @@ const initialState: MainState = {
     chatList: [],
 }
 
+export const chatListAsync = createAsyncThunk(
+    'mainSlice/fetchChatList',
+    async (sec: number | null, { dispatch, getState }: any) => {
+        const mainState: MainState = getMainState(getState())
+
+        dispatch(
+            makeApiRequestInQueue({
+                apiRequest: fetchChatList.bind(null, sec || 1),
+                asyncThunk: chatListAsync,
+            })
+        )
+    }
+)
+
 export const mainSlice = createSlice({
     name: 'mainSlice',
     initialState,
@@ -79,7 +93,12 @@ export const mainSlice = createSlice({
             state.requestInQueueFetching = action.payload
         },
     },
-    extraReducers: builder => {},
+    extraReducers: builder => {
+        builder.addCase(chatListAsync.fulfilled, (state, action) => {
+            console.log(`initInterviewAsync.fulfilled`, action.payload)
+            return { ...state }
+        })
+    },
 })
 
 export default mainSlice.reducer

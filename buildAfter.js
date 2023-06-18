@@ -1,4 +1,4 @@
-const nextConfig = require('./next.config')
+const extensionNextConfig = require('./extension.next.config')
 const fs = require('fs')
 const path = require('path')
 const _ = require('lodash')
@@ -72,7 +72,7 @@ function extractInlineScripts(htmlFilePath, outputFilePath) {
 
 const buildAfter = () => {
     // get build path
-    const distDir = nextConfig.distDir
+    const distDir = extensionNextConfig.distDir
     const htmlFiles = getAllHtmlFiles(distDir)
     if (_.isEmpty(htmlFiles)) return
 

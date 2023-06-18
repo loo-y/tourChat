@@ -19,27 +19,10 @@ export const fetchCount = async (amount = 1): Promise<{ data: number }> => {
 }
 
 export const fetchChatList = async (sec: number) => {
-    const result: any = await new Promise((resolve, reject) => {
-        setTimeout(() => {
-            resolve({
-                chatList: [
-                    {
-                        ai: '你好人类',
-                        human: '你好ai',
-                        timestamp: 1629782400000,
-                    },
-                    {
-                        ai: '你好',
-                        human: '你好',
-                        timestamp: 1629782410000,
-                    },
-                ],
-            })
-        }, (sec || 1) * 1000)
-    })
-
+    const result: any = await fetch('http://localhost:3000/mapi/chat', { mode: 'no-cors' })
+    const resultJson = await result.json()
     return {
         status: true,
-        chatList: result.chatList,
+        chatList: resultJson,
     }
 }
