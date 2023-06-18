@@ -8,14 +8,15 @@ const ChatList = () => {
     const dispatch = useAppDispatch()
     const state = useAppSelector(getMainState)
     const [documentHtml, setDocumentHtml] = useState<string>('')
-    const [selectorText, setSelectorText] = useState<string>('#js_ItineraryInfo')
+    const [selectorNodeKey, setSelectorNodeKey] = useState<string>('.imvc-view-item')
     useEffect(() => {
         chrome.runtime.onMessage.addListener(function (request: any, sender: any, sendResponse: (args: any) => void) {
             console.log(request.data)
             sendResponse('message received from ChatList')
-            const selector = (request.data || {})[selectorText]
-            const { htmlcontent } = selector || {}
+            const selector = (request.data || {})[selectorNodeKey]
+            const { htmlcontent, state } = selector || {}
             setDocumentHtml(htmlcontent)
+            console.log(`get State from Page===>`, state)
         })
     }, [])
 
@@ -23,7 +24,7 @@ const ChatList = () => {
         console.log(`this is handleTest`)
         // alert(`this is handleTest`)
         chrome.runtime.sendMessage(
-            { data: { command: 'getHTML', selector: { text: selectorText } } },
+            { data: { command: 'getHTMLAndState', selector: { nodeKey: selectorNodeKey } } },
             function (response: (args: any) => void) {
                 console.log(response)
             }
