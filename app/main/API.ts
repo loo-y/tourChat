@@ -19,7 +19,9 @@ export const fetchCount = async (amount = 1): Promise<{ data: number }> => {
 }
 
 export const fetchChatList = async (sec: number) => {
-    const result: any = await fetch('http://localhost:3000/mapi/chat', { mode: 'no-cors' })
+    const url = `http://local.tourchat.com:3000/mapi/chat?sec=${sec}`
+    const result: any = await fetch(url, { mode: 'no-cors' })
+
     const resultJson = await result.json()
     return {
         status: true,
