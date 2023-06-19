@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PaLMCall } from '../../palm/common'
+import { PaLMCall } from '../../palm/connect'
 
 export async function GET(request: NextRequest) {
     const result = await PaLMCall()
