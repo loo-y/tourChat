@@ -1,15 +1,16 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { AppState, AppThunk } from '../store'
 import * as API from './API'
-import { fetchCount, fetchChatList } from './API'
-import { MainState } from './interface'
+import { fetchCount, fetchChatList, fetchVectorSave } from './API'
+import { MainState, VectorSaveParams } from './interface'
 import _ from 'lodash'
 import type { AsyncThunk } from '@reduxjs/toolkit'
+import { vectorNameSpace } from './constants'
 
 // define a queue to store api request
 type APIFunc = (typeof API)[keyof typeof API]
 type APIFuncName = keyof typeof API
-export const getMainState = (state: AppState) => state.main
+export const getMainState = (state: AppState): MainState => state.main
 
 type RequestCombo = {
     apiRequest: APIFunc
@@ -85,6 +86,21 @@ export const chatListAsync = createAsyncThunk(
     }
 )
 
+export const saveContentToVector = createAsyncThunk(
+    'mainSlice/saveContentToVector',
+    async (params: Pick<VectorSaveParams, 'contextList'>, { dispatch, getState }: any) => {
+        dispatch(
+            makeApiRequestInQueue({
+                apiRequest: fetchVectorSave.bind(null, {
+                    contextList: params.contextList,
+                    name: vectorNameSpace,
+                }),
+                asyncThunk: saveContentToVector,
+            })
+        )
+    }
+)
+
 export const mainSlice = createSlice({
     name: 'mainSlice',
     initialState,
@@ -94,10 +110,14 @@ export const mainSlice = createSlice({
         },
     },
     extraReducers: builder => {
-        builder.addCase(chatListAsync.fulfilled, (state, action) => {
-            console.log(`initInterviewAsync.fulfilled`, action.payload)
-            return { ...state }
-        })
+        builder
+            .addCase(chatListAsync.fulfilled, (state, action) => {
+                console.log(`initInterviewAsync.fulfilled`, action.payload)
+                return { ...state }
+            })
+            .addCase(saveContentToVector.fulfilled, (state, action) => {
+                console.log(`saveContentToVector.fulfilled`, action.payload)
+            })
     },
 })
 

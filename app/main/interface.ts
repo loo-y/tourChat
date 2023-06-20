@@ -1,3 +1,5 @@
+export * from '../mapi/interface'
+
 export interface MainState {
     chatList: ChatItem[]
     requestInQueueFetching: boolean

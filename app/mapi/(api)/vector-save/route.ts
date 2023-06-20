@@ -3,12 +3,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { sha256_16bit } from '../../util'
 import { getIndex, createIndex, insert, findSimilar, deleteAllVectors } from '../../pinecone/connect'
 import { getEmbeddings } from '../../azure/connect'
+import { VectorSaveParams } from '../../interface'
 
 const openaiPineconeIndex = 'openai'
-interface VectorSaveStream extends ReadableStream<Uint8Array> {
-    name: string
-    contextList: { pageContent: string; metadata: { [index: string]: any } }[]
-}
+interface VectorSaveStream extends ReadableStream<Uint8Array>, VectorSaveParams {}
+
 export async function POST(req: NextRequest) {
     const { contextList, name } = (req?.body as VectorSaveStream) || {}
     const sha256_namespace = sha256_16bit(name)

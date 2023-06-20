@@ -1,6 +1,6 @@
 'use client'
 import { useAppSelector, useAppDispatch } from '@/app/hooks'
-import { getMainState, chatListAsync } from '../slice'
+import { getMainState, chatListAsync, saveContentToVector } from '../slice'
 import { useCallback, useEffect, useState } from 'react'
 declare var chrome: any
 
