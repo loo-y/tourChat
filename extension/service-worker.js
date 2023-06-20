@@ -39,8 +39,21 @@ chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
     }
 })
 
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    if (request.name === 'getParameter') {
+      sendResponse({ value: 'John' }); // 返回参数值
+    }
+  });
+  
 chrome.runtime.onMessage.addListener(async function(request, sender, sendResponse) {
-    console.log(request.data);
+    const {
+        source,
+        info,
+    } = request || {}
+    // only trrigered by mainstatic
+    if(source !== `mainstatic`){
+        return;
+    }
     sendResponse("message received from service-worker");
     const [tab] = await chrome.tabs.query({active: true, lastFocusedWindow: true});
     const url = new URL(tab.url)
@@ -49,5 +62,22 @@ chrome.runtime.onMessage.addListener(async function(request, sender, sendRespons
         const response = await chrome.tabs.sendMessage(tab.id, {data: {greeting: "hello from service worker", ...request.data}});
         // do something with response here, not outside the function
         console.log(response);
+        const { command, selector } = info || {};
+
+        const tabId = tab.id;
+        // inject script in page first
+        chrome.scripting.executeScript({
+            target: { tabId }, 
+            world: "MAIN", 
+            files: ['./inject-script.js']
+        }, () => {
+            // after inject function in page window, then call it in page window
+            chrome.scripting.executeScript({
+              target: { tabId },
+              world: "MAIN", 
+              args: [{ command, selector }],
+              func: (...args) => injectScript(...args),
+            });
+        });
     }
 });

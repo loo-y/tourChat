@@ -4,6 +4,7 @@
     "description": "SideBar Tour Chat",
     "version": "1.0",
     "permissions": ["activeTab", "tabs", "scripting", "sidePanel"],
+    "host_permissions": [ "https://vacations.ctrip.com/*"],
     "content_security_policy": {
         "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
     },
