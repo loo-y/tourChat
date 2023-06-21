@@ -1,4 +1,4 @@
 export interface VectorSaveParams {
     name: string
-    contextList: { pageContent: string; metadata: { [index: string]: any } }[]
+    contextList: { pageContent: string; metadata?: { [index: string]: any } }[]
 }

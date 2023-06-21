@@ -2,6 +2,8 @@
 import { useAppSelector, useAppDispatch } from '@/app/hooks'
 import { getMainState, chatListAsync, saveContentToVector } from '../slice'
 import { useCallback, useEffect, useState } from 'react'
+import { VectorSaveParams } from '../interface'
+import _ from 'lodash'
 declare var chrome: any
 
 const ChatList = () => {
@@ -15,9 +17,13 @@ const ChatList = () => {
             sendResponse('message received from ChatList')
             const { pageData, source } = request || {}
             const selector = (pageData || {})[selectorNodeKey]
-            const { htmlcontent, state } = selector || {}
+            const { htmlcontent, state: pageState } = selector || {}
             htmlcontent && setDocumentHtml(htmlcontent)
-            console.log(`get State from Page===>`, state)
+            console.log(`get State from Page===>`, pageState)
+            const contextList = regonizePagestateToContent(pageState)
+            console.log(`contextList=====>`, contextList)
+
+            dispatch(saveContentToVector({ contextList }))
         })
     }, [])
 
@@ -30,7 +36,7 @@ const ChatList = () => {
                 console.log(response)
             }
         )
-        dispatch(chatListAsync(1))
+        // dispatch(chatListAsync(1))
     }
 
     return (
@@ -56,3 +62,24 @@ const ChatList = () => {
 }
 
 export default ChatList
+
+// ********** helper **********
+const regonizePagestateToContent = (pageState: any): VectorSaveParams['contextList'] => {
+    let contextList: VectorSaveParams['contextList'] = []
+    const { itineraryInfo } = pageState || {}
+    const { IntroductionInfoList } = itineraryInfo || {}
+
+    contextList = _.map(IntroductionInfoList || [], IntroductionInfo => {
+        const { DailyList, Desc, FewDay = 0 } = IntroductionInfo || {}
+        const dailyInfo = _.map(DailyList, Daily => {
+            const { TakeTime, DepartTime, Desc: DailyDesc } = Daily || {}
+            return `时间:${DepartTime}, ${DailyDesc}, ${TakeTime || ''};`
+        })
+        return {
+            pageContent: `Day${FewDay}: ${Desc}, 当日安排: ${dailyInfo}`,
+            metadata: { day: FewDay },
+        }
+    })
+
+    return contextList
+}
