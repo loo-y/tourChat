@@ -28,15 +28,11 @@ chrome.tabs.onActivated.addListener(async ({tabId}) => {
         // mainPage send message to service-worker, 
         // service-worker get message from mainPage, then send message to content-script
 
-
         chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(error => console.error(error));
-
-
     } else {
         // Disables the side panel on all other sites
         await chrome.sidePanel.setOptions({
             tabId,
-            path: mainPage,
             enabled: false,
         })
     }

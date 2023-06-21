@@ -82,7 +82,7 @@ export const insert = async ({
     retry?: number
 }): Promise<number> => {
     if (!index) return 0
-    retry = !retry || isNaN(retry) ? 3 : retry
+    retry = retry === undefined || isNaN(retry) ? 3 : retry
     if (!(retry > 0)) {
         console.log(`insert failed, retry:`, retry)
         return 0

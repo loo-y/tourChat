@@ -8,13 +8,17 @@ import { VectorSaveParams } from '../../interface'
 const openaiPineconeIndex = 'openai'
 interface VectorSaveStream extends ReadableStream<Uint8Array>, VectorSaveParams {}
 
-export async function POST(req: NextRequest) {
-    const { contextList, name } = (req?.body as VectorSaveStream) || {}
+export async function POST(request: NextRequest) {
+    const body: VectorSaveParams = await request.json()
+    const { contextList, name } = body || {}
+
     const sha256_namespace = sha256_16bit(name)
 
     if (_.isEmpty(contextList)) {
         return NextResponse.json({ satus: -1 })
     }
+
+    // return NextResponse.json({ satus: 0, body, chunkContextList })
 
     // delete first
     await deleteAllVectors({ index: openaiPineconeIndex, namespace: sha256_namespace })
