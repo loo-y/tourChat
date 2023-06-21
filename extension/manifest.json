@@ -21,7 +21,7 @@
         {
           "js": ["content-script.js"],
           "matches": [
-            "https://vacations.ctrip.com/travel/*"
+            "https://vacations.ctrip.com/*"
           ]
         }
     ]

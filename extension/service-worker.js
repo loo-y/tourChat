@@ -2,7 +2,10 @@ const Match_URL = 'ctrip.com'
 
 console.log(`test===>`, Match_URL)
 const mainPage = './dist/main.html'
-chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
+
+// chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
+chrome.tabs.onActivated.addListener(async ({tabId}) => {
+    const tab = await chrome.tabs.get(tabId);
     console.log(`tab`, tab, tab.url)
     if (!tab.url) return
     const url = new URL(tab.url)
@@ -39,12 +42,6 @@ chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
     }
 })
 
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    if (request.name === 'getParameter') {
-      sendResponse({ value: 'John' }); // 返回参数值
-    }
-  });
-  
 chrome.runtime.onMessage.addListener(async function(request, sender, sendResponse) {
     const {
         source,
