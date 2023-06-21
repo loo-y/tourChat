@@ -2,6 +2,7 @@
 import Cookie from 'universal-cookie'
 import _ from 'lodash'
 import { VectorSaveParams } from './interface'
+import { API_BASE_URL } from './constants'
 
 const commonOptions: Partial<RequestInit> = {
     method: 'POST',
@@ -10,6 +11,7 @@ const commonOptions: Partial<RequestInit> = {
         'Content-Type': 'application/json',
     },
 }
+const apiBaseUrl = `${API_BASE_URL.PROTOCAL}${API_BASE_URL.HOST}:${API_BASE_URL.PORT}`
 
 export const fetchCount = async (amount = 1): Promise<{ data: number }> => {
     const response = await fetch('/api/counter', {
@@ -22,7 +24,7 @@ export const fetchCount = async (amount = 1): Promise<{ data: number }> => {
 }
 
 export const fetchChatList = async (sec: number) => {
-    const url = `http://local.tourchat.com:3000/mapi/chat?sec=${sec}`
+    const url = `${apiBaseUrl}/mapi/chat?sec=${sec}`
     const result: any = await fetch(url, { ...commonOptions })
 
     const resultJson = await result.json()
@@ -33,7 +35,7 @@ export const fetchChatList = async (sec: number) => {
 }
 
 export const fetchVectorSave = async ({ contextList, name }: VectorSaveParams) => {
-    const url = `http://local.tourchat.com:3000/mapi/vector-save`
+    const url = `${apiBaseUrl}/mapi/vector-save`
     try {
         const result: any = await fetch(url, {
             ...commonOptions,
@@ -54,7 +56,7 @@ export const fetchVectorSave = async ({ contextList, name }: VectorSaveParams) =
 }
 
 export const fetchVectorSimlar = async ({ text, name }: { text: string; name: string }) => {
-    const url = `http://local.tourchat.com:3000/mapi/vector-similar`
+    const url = `${apiBaseUrl}/mapi/vector-similar`
     try {
         const result: any = await fetch(url, {
             ...commonOptions,
