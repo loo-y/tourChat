@@ -42,7 +42,7 @@
     "eslint": "8.42.0",
     "eslint-config-next": "13.4.4",
     "google-auth-library": "^8.8.0",
-    "langchain": "^0.0.95",
+    "langchain": "^0.0.96",
     "lodash": "^4.17.21",
     "next": "13.4.4",
     "postcss": "8.4.24",

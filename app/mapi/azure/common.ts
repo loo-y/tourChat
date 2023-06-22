@@ -75,7 +75,7 @@ modelChatTextDavinci003.bestOf = undefined
 
 // *** 👇 TextEmbeddingAda002 👇 ***
 const modelTextEmbeddingAda002 = new OpenAIEmbeddings({
-    modelName: AZURE_MODELS.TextEmbeddingAda002,
+    // modelName: AZURE_MODELS.TextEmbeddingAda002,
     azureOpenAIApiKey,
     azureOpenAIApiInstanceName,
     azureOpenAIApiDeploymentName: azureOpenAIApiDeployment_TextEmbeddingAda002,

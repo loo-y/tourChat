@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     // return NextResponse.json({ satus: 0, body, chunkContextList })
 
     // delete first
-    await deleteAllVectors({ index: openaiPineconeIndex, namespace: sha256_namespace })
+    // await deleteAllVectors({ index: openaiPineconeIndex, namespace: sha256_namespace })
 
     const chunkContextList = _.chunk(contextList, 5)
     console.log(`🐹🐹🐹chunkDocs total: 🐹🐹🐹`, chunkContextList.length)
@@ -37,21 +37,23 @@ export async function POST(request: NextRequest) {
                 const vectors: number[][] = await getEmbeddings({
                     textList,
                 })
-                vectorsTotal += vectors?.length || 0
-                const completedVectors = _.map(vectors, (vector, index: number) => {
-                    return {
-                        id: `pdf-${chunkIndex}-${index}`,
-                        values: vector,
-                        metadata: chunkContext[index]?.metadata || {},
-                    }
-                })
-                console.log(`vertors from getEmbeddings completedVectors`, completedVectors)
-                let upsertedCount = await insert({
-                    index: openaiPineconeIndex,
-                    vectors: completedVectors,
-                    namespace: sha256_namespace,
-                })
-                upsertedTotalCount += upsertedCount || 0
+                if (!_.isEmpty(vectors)) {
+                    vectorsTotal += vectors?.length || 0
+                    const completedVectors = _.map(vectors, (vector, index: number) => {
+                        return {
+                            id: `pdf-${chunkIndex}-${index}`,
+                            values: vector,
+                            metadata: chunkContext[index]?.metadata || {},
+                        }
+                    })
+                    console.log(`vertors from getEmbeddings completedVectors`, completedVectors)
+                    let upsertedCount = await insert({
+                        index: openaiPineconeIndex,
+                        vectors: completedVectors,
+                        namespace: sha256_namespace,
+                    })
+                    upsertedTotalCount += upsertedCount || 0
+                }
             })()
         })
     )

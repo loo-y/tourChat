@@ -10,7 +10,7 @@ export const getEmbeddings = async ({
     textList: string[]
     retry?: number
 }): Promise<number[][]> => {
-    retry = retry === undefined || isNaN(retry) ? 3 : retry
+    retry = retry === undefined || isNaN(retry) ? 1 : retry
     if (!(retry > 0)) {
         console.log(`getEmbeddings failed, retry:`, retry)
         return []
