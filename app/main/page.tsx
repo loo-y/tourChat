@@ -5,6 +5,7 @@ import { getMainState } from './slice'
 import { useCallback } from 'react'
 import './style/index.css'
 import ChatList from './components/ChatList'
+import ChatTextarea from './components/ChatTextarea'
 import { Provider } from 'react-redux'
 import store from '../store'
 
@@ -24,6 +25,7 @@ const Main: NextPage<{ serverSideData: any }, any> = ({ serverSideData }: { serv
                         </div>
                     </div>
                     <ChatList />
+                    <ChatTextarea />
                 </div>
             </div>
         </div>

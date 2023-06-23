@@ -12,7 +12,11 @@ const ChatList = () => {
     const [documentHtml, setDocumentHtml] = useState<string>('')
     const [selectorNodeKey, setSelectorNodeKey] = useState<string>('.imvc-view-item')
     useEffect(() => {
-        chrome.runtime.onMessage.addListener(function (request: any, sender: any, sendResponse: (args: any) => void) {
+        chrome?.runtime?.onMessage?.addListener(function (
+            request: any,
+            sender: any,
+            sendResponse: (args: any) => void
+        ) {
             console.log(request)
             sendResponse('message received from ChatList')
             const { pageData, source } = request || {}
@@ -30,7 +34,7 @@ const ChatList = () => {
     const handleTest = () => {
         console.log(`this is handleTest`)
         // sendMessage to service-worker.js
-        chrome.runtime.sendMessage(
+        chrome?.runtime?.sendMessage(
             { source: 'mainstatic', info: { command: 'getHTMLAndState', selector: { nodeKey: selectorNodeKey } } },
             function (response: (args: any) => void) {
                 console.log(response)
