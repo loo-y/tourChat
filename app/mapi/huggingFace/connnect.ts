@@ -8,9 +8,9 @@ export const getEmbeddingsFromLangchain = async ({
 }: {
     textList: string[]
     retry?: number
-}): Promise<number[] | number[][]> => {
+}): Promise<number[][]> => {
     retry = retry === undefined || isNaN(retry) ? 1 : retry
-    let response: number[] | number[][] = []
+    let response: number[][] = []
     if (!(retry > 0)) {
         console.log(`getEmbeddingsFromLangchain failed, retry:`, retry)
         return response
@@ -29,20 +29,32 @@ export const getEmbeddingsFromLangchain = async ({
     return response
 }
 
-export const getEmbeddingsFromHfInference = async ({ textList, retry }: { textList: string[]; retry?: number }) => {
+export const getEmbeddingsFromHfInference = async ({
+    textList,
+    retry,
+}: {
+    textList: string[]
+    retry?: number
+}): Promise<number[][]> => {
     retry = retry === undefined || isNaN(retry) ? 1 : retry
-    let response: number[] | number[][] = []
+    let response: number[][] = []
     if (!(retry > 0)) {
         console.log(`getEmbeddingsFromHfInference failed, retry:`, retry)
         return response
     }
 
     try {
-        response = (await modelHuggingFaceInference.featureExtraction({
+        const fetchResponse = (await modelHuggingFaceInference.featureExtraction({
             model: embeddingModel.distilbertBaseNliMeanTokens,
             inputs: textList,
         })) as number[] | number[][]
 
+        // @ts-ignore
+        if (fetchResponse?.[0] && !fetchResponse[0]?.[0]) {
+            response = [fetchResponse as number[]]
+        } else {
+            response = fetchResponse as number[][]
+        }
         console.log(`getEmbeddingsFromHfInference response`, response)
         if (!_.isEmpty(response)) return response
     } catch (e) {
@@ -57,11 +69,13 @@ export const getEmbeddingsFromHfInference = async ({ textList, retry }: { textLi
 export const getEmbeddingsFromRestapi = async ({
     textList,
     retry,
+    wait_for_model,
 }: {
     textList: string[]
     retry?: number
-}): Promise<number[] | number[][]> => {
-    let response: number[] | number[][] = []
+    wait_for_model?: boolean
+}): Promise<number[][]> => {
+    let response: number[][] = []
     const { url, params } = modelHuggingFaceRest || {}
     const body = {
         inputs: textList,
@@ -73,17 +87,23 @@ export const getEmbeddingsFromRestapi = async ({
     }
 
     try {
-        const responseFetch = await fetch(`${url}${embeddingModel.distilbertBaseNliMeanTokens}`, {
+        const fetchReturn = await fetch(`${url}${embeddingModel.distilbertBaseNliMeanTokens}`, {
             ...params,
             body: JSON.stringify(body),
         })
 
-        if (responseFetch.status === 503) {
+        // if there is no wait_for_model and status is 503, try again
+        if (fetchReturn.status === 503 && !wait_for_model) {
             console.log(`getEmbeddingsFromRestapi 503, retry`, retry)
             // retry--
-            return getEmbeddingsFromRestapi({ textList, retry })
+            return getEmbeddingsFromRestapi({ textList, retry, wait_for_model: true })
         }
-        response = await responseFetch.json()
+        response = await fetchReturn.json()
+        if (response?.[0] && !response[0]?.[0]) {
+            // @ts-ignore
+            response = [response]
+        }
+
         if (!_.isEmpty(response)) return response
     } catch (e) {
         retry--

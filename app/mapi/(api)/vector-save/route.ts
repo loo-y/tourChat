@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { sha256_16bit } from '../../util'
 import { getIndex, createIndex, insert, findSimilar, deleteAllVectors } from '../../pinecone/connect'
 import { getEmbeddings } from '../../azure/connect'
+import { getEmbeddingsFromHfInference as getEmbeddingsHF } from '../../huggingFace/connnect'
 import { VectorSaveParams } from '../../interface'
 import { openaiPineconeIndex } from '../../pinecone/constants'
 
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
                     const { pageContent, metadata } = ctx || {}
                     return pageContent
                 })
-                const vectors: number[][] = await getEmbeddings({
+                const vectors: number[][] = await getEmbeddingsHF({
                     textList,
                 })
                 if (!_.isEmpty(vectors)) {
