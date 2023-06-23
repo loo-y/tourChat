@@ -18,3 +18,4 @@ export const VectorUpsertUrl = `${VectorBaseUrl}/vectors/upsert`
 export const VectorDeltUrl = `${VectorBaseUrl}/vectors/delete`
 export const VectorQueryUrl = `${VectorBaseUrl}/query`
 export const defaultDimension = 1536
+export const openaiPineconeIndex = 'openai'

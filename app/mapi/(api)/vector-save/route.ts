@@ -4,8 +4,8 @@ import { sha256_16bit } from '../../util'
 import { getIndex, createIndex, insert, findSimilar, deleteAllVectors } from '../../pinecone/connect'
 import { getEmbeddings } from '../../azure/connect'
 import { VectorSaveParams } from '../../interface'
+import { openaiPineconeIndex } from '../../pinecone/constants'
 
-const openaiPineconeIndex = 'openai'
 interface VectorSaveStream extends ReadableStream<Uint8Array>, VectorSaveParams {}
 
 export async function POST(request: NextRequest) {
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     // return NextResponse.json({ satus: 0, body, chunkContextList })
 
     // delete first
-    // await deleteAllVectors({ index: openaiPineconeIndex, namespace: sha256_namespace })
+    await deleteAllVectors({ index: openaiPineconeIndex, namespace: sha256_namespace })
 
     const chunkContextList = _.chunk(contextList, 5)
     console.log(`🐹🐹🐹chunkDocs total: 🐹🐹🐹`, chunkContextList.length)

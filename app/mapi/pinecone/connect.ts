@@ -136,7 +136,7 @@ export const findSimilar = async ({
         includeValues: includeValues || false,
         includeMetadata: includeMetadata == undefined ? true : includeMetadata || false,
         vector: vector,
-        topK: topK || 5,
+        topK: topK || 10,
     }
     if (!_.isEmpty(filter)) body.filter = filter
     if (id) body.id = id
