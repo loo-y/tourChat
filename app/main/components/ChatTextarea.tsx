@@ -26,10 +26,10 @@ const ChatTextarea = () => {
                     onChange={handleTextareaChange}
                 />
             </div>
-            <div className="flex h-10 mt-1 mr-2">
+            <div className="flex mb-1 mr-2 mt-1 flex-row text-center justify-center items-end">
                 <button
                     type="button"
-                    className="top-1 relative inline-flex w-auto h-9 leading-9 rounded-md align-top bg-violet-600 px-3 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 sm:ml-3 sm:w-auto"
+                    className="w-auto leading-9 rounded-md align-bottom bg-violet-600 px-3 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 sm:ml-3 sm:w-auto"
                 >
                     send
                 </button>
