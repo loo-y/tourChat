@@ -1,6 +1,6 @@
 'use client'
 import { useAppSelector, useAppDispatch } from '@/app/hooks'
-import { getMainState, chatListAsync, saveContentToVector } from '../slice'
+import { getMainState, chatListAsync, updateProductId, saveContentToVector } from '../slice'
 import { useCallback, useEffect, useState } from 'react'
 import { VectorSaveParams } from '../interface'
 import _ from 'lodash'
@@ -22,12 +22,15 @@ const ChatList = () => {
             const { pageData, source } = request || {}
             const selector = (pageData || {})[selectorNodeKey]
             const { htmlcontent, state: pageState } = selector || {}
-            htmlcontent && setDocumentHtml(htmlcontent)
+            // htmlcontent && setDocumentHtml(htmlcontent)
+            htmlcontent && setDocumentHtml('<h2>Get Page Html Succeed!!</h2>')
             console.log(`get State from Page===>`, pageState)
-            const contextList = regonizePagestateToContent(pageState)
-            console.log(`contextList=====>`, contextList)
+            const { contextList, productId } = regonizePagestateToContent(pageState)
+            const { introductionInfo } = contextList || {}
+            console.log(`introductionInfo=====>`, introductionInfo)
 
-            dispatch(saveContentToVector({ contextList }))
+            dispatch(updateProductId(productId))
+            dispatch(saveContentToVector({ contextList: introductionInfo, name: `Product_${productId}` }))
         })
     }, [])
 
@@ -68,12 +71,14 @@ const ChatList = () => {
 export default ChatList
 
 // ********** helper **********
-const regonizePagestateToContent = (pageState: any): VectorSaveParams['contextList'] => {
-    let contextList: VectorSaveParams['contextList'] = []
-    const { itineraryInfo } = pageState || {}
+const regonizePagestateToContent = (
+    pageState: any
+): { productId: number; contextList: { [index: string]: VectorSaveParams['contextList'] } } => {
+    let introductionInfo: VectorSaveParams['contextList'] = []
+    const { itineraryInfo, productId } = pageState || {}
     const { IntroductionInfoList } = itineraryInfo || {}
 
-    contextList = _.map(IntroductionInfoList || [], IntroductionInfo => {
+    introductionInfo = _.map(IntroductionInfoList || [], IntroductionInfo => {
         const { DailyList, Desc, FewDay = 0 } = IntroductionInfo || {}
         const dailyInfo = _.map(DailyList, Daily => {
             const { TakeTime, DepartTime, Desc: DailyDesc } = Daily || {}
@@ -85,5 +90,10 @@ const regonizePagestateToContent = (pageState: any): VectorSaveParams['contextLi
         }
     })
 
-    return contextList
+    return {
+        productId: Number(productId) || 0,
+        contextList: {
+            introductionInfo,
+        },
+    }
 }

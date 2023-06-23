@@ -2,6 +2,7 @@ export * from '../mapi/interface'
 
 export interface MainState {
     chatList: ChatItem[]
+    productId: number
     requestInQueueFetching: boolean
 }
 

@@ -1,8 +1,13 @@
 'use client'
+import { useAppSelector, useAppDispatch } from '@/app/hooks'
+import { getMainState, findSimilarContent } from '../slice'
 import _ from 'lodash'
 import { useRef, useState } from 'react'
 
 const ChatTextarea = () => {
+    const dispatch = useAppDispatch()
+    const state = useAppSelector(getMainState)
+    const { productId } = state
     const textareaRef = useRef(null)
     const [replicatedValue, setReplicatedValue] = useState<string>(' ')
     const handleTextareaChange = (sender?: any) => {
@@ -10,6 +15,12 @@ const ChatTextarea = () => {
         const textAreaValue = (textareaRef?.current?.value || '') + ' '
         if (textAreaValue) {
             setReplicatedValue(textAreaValue)
+        }
+    }
+
+    const handleClickSendQuestion = () => {
+        if (replicatedValue) {
+            dispatch(findSimilarContent({ text: replicatedValue, name: `Product_${productId}` }))
         }
     }
     return (
@@ -26,7 +37,10 @@ const ChatTextarea = () => {
                     onChange={handleTextareaChange}
                 />
             </div>
-            <div className="flex mb-1 mr-2 mt-1 flex-row text-center justify-center items-end">
+            <div
+                className="flex mb-1 mr-2 mt-1 flex-row text-center justify-center items-end"
+                onClick={handleClickSendQuestion}
+            >
                 <button
                     type="button"
                     className="w-auto leading-9 rounded-md align-bottom bg-violet-600 px-3 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 sm:ml-3 sm:w-auto"

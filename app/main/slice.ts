@@ -70,6 +70,7 @@ const makeApiRequestInQueue = createAsyncThunk(
 const initialState: MainState = {
     requestInQueueFetching: false,
     chatList: [],
+    productId: 0,
 }
 
 export const chatListAsync = createAsyncThunk(
@@ -88,14 +89,34 @@ export const chatListAsync = createAsyncThunk(
 
 export const saveContentToVector = createAsyncThunk(
     'mainSlice/saveContentToVector',
-    async (params: Pick<VectorSaveParams, 'contextList'>, { dispatch, getState }: any) => {
+    async (params: VectorSaveParams, { dispatch, getState }: any) => {
         dispatch(
             makeApiRequestInQueue({
                 apiRequest: fetchVectorSave.bind(null, {
-                    contextList: params.contextList,
-                    name: vectorNameSpace,
+                    contextList: params?.contextList || [],
+                    name: params?.name || vectorNameSpace,
                 }),
                 asyncThunk: saveContentToVector,
+            })
+        )
+    }
+)
+
+export const findSimilarContent = createAsyncThunk(
+    'mainSlice/findSimilarContent',
+    async (params: { text: string; name?: string }, { dispatch, getState }: any) => {
+        const mainState: MainState = getMainState(getState())
+
+        dispatch(
+            makeApiRequestInQueue({
+                apiRequest: API.fetchVectorSimlar.bind(null, {
+                    name:
+                        params?.name ||
+                        (mainState?.productId ? `Product_${mainState.productId}` : undefined) ||
+                        vectorNameSpace,
+                    ...params,
+                }),
+                asyncThunk: findSimilarContent,
             })
         )
     }
@@ -105,6 +126,9 @@ export const mainSlice = createSlice({
     name: 'mainSlice',
     initialState,
     reducers: {
+        updateProductId: (state, action: PayloadAction<number>) => {
+            state.productId = action.payload
+        },
         setRequestInQueueFetching: (state, action: PayloadAction<boolean>) => {
             state.requestInQueueFetching = action.payload
         },
@@ -117,8 +141,15 @@ export const mainSlice = createSlice({
             })
             .addCase(saveContentToVector.fulfilled, (state, action) => {
                 console.log(`saveContentToVector.fulfilled`, action.payload)
+                return { ...state }
+            })
+            .addCase(findSimilarContent.fulfilled, (state, action) => {
+                console.log(`findSimilarContent.fulfilled`, action.payload)
+                return { ...state }
             })
     },
 })
 
+// export actions
+export const { updateProductId } = mainSlice.actions
 export default mainSlice.reducer
