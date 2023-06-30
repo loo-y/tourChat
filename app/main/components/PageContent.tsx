@@ -13,6 +13,7 @@ const PageContent = () => {
     const [documentHtml, setDocumentHtml] = useState<string>('')
     const [selectorNodeKey, setSelectorNodeKey] = useState<string>('.imvc-view-item')
     const [pageType, setPageType] = useState<string>('')
+    const [requestFromChrome, setRequestFromChrome] = useState<any>(null)
     useEffect(() => {
         sendCommandToServiceWorker()
         chrome?.runtime?.onMessage?.addListener(function (
@@ -22,7 +23,13 @@ const PageContent = () => {
         ) {
             console.log(request)
             sendResponse('message received from PageContent')
-            const { pageData, source, type, url } = request || {}
+            setRequestFromChrome(request)
+        })
+    }, [])
+
+    useEffect(() => {
+        if (!_.isEmpty(requestFromChrome)) {
+            const { pageData, source, type, url } = requestFromChrome || {}
             console.log(`type`, type)
             if (type == CommandType.getUrl) {
                 let matchFirstPath = url && url.match(/\/([^\/\.]+)\//)
@@ -68,8 +75,8 @@ const PageContent = () => {
                     }
                 }
             }
-        })
-    }, [])
+        }
+    }, [requestFromChrome])
 
     const handleGetPageContent = () => {
         console.log(`Try to GetPageContent`)
