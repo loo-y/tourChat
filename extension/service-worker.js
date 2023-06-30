@@ -1,6 +1,5 @@
 const Match_URL = 'ctrip.com'
 
-console.log(`test===>`, Match_URL)
 const mainPage = './dist/main.html'
 
 // chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
@@ -23,12 +22,11 @@ chrome.tabs.onActivated.addListener(async ({tabId}) => {
         //     });
         // }, 1000)
 
-        
         // runtime message: https://developer.chrome.com/docs/extensions/reference/runtime/#event-onMessage
         // mainPage send message to service-worker, 
         // service-worker get message from mainPage, then send message to content-script
-
         chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(error => console.error(error));
+
     } else {
         // Disables the side panel on all other sites
         await chrome.sidePanel.setOptions({
@@ -42,14 +40,24 @@ chrome.runtime.onMessage.addListener(async function(request, sender, sendRespons
     const {
         source,
         info,
+        type,
     } = request || {}
+    sendResponse({message: "service-worker tell you"})
     // only trrigered by mainstatic
     if(source !== `mainstatic`){
         return;
     }
-    sendResponse("message received from service-worker");
+
     const [tab] = await chrome.tabs.query({active: true, lastFocusedWindow: true});
     const url = new URL(tab.url)
+
+    if(type == "getUrl"){
+        chrome.runtime.sendMessage({url: tab.url, type, message: "service-worker tell you about this page",}, function(response) {
+            console.log(response);
+        });
+        return;
+    }
+
     // Enables the side panel on google.com
     if (url.origin.includes(Match_URL)) {
         const response = await chrome.tabs.sendMessage(tab.id, {data: {greeting: "hello from service worker", ...request.data}});

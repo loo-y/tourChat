@@ -14,21 +14,32 @@ export interface QuizParams {
     content: string
     question: string
 }
+
+export enum PageType {
+    list = 'list',
+    detail = 'detail',
+    order = 'order',
+}
+
+export enum CommandType {
+    getUrl = 'getUrl',
+    getPageContent = 'getPageContent',
+}
 // ********** helper**********
 
 // try to define a new decimal type
 type Decimal1 = number & { __Decimal1: true }
 
-function createDecimal1(value: number): Decimal1 {
-    if (
-        !Number.isFinite(value) ||
-        Math.abs(value * 10 - Math.floor(value * 10 + 0.5)) >= Number.EPSILON ||
-        value <= 0
-    ) {
-        throw new TypeError(`${value} is not a valid Decimal1 value.`)
-    }
-    return value as Decimal1
-}
+// function createDecimal1(value: number): Decimal1 {
+//     if (
+//         !Number.isFinite(value) ||
+//         Math.abs(value * 10 - Math.floor(value * 10 + 0.5)) >= Number.EPSILON ||
+//         value <= 0
+//     ) {
+//         throw new TypeError(`${value} is not a valid Decimal1 value.`)
+//     }
+//     return value as Decimal1
+// }
 
-let decimal1Value: Decimal1
-decimal1Value = createDecimal1(1.23) // 正确
+// let decimal1Value: Decimal1
+// decimal1Value = createDecimal1(1.23) // 正确
