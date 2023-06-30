@@ -2,7 +2,7 @@ import _ from 'lodash'
 import { NextRequest, NextResponse } from 'next/server'
 import { sha256_16bit } from '../../util'
 import { getIndex, createIndex, insert, findSimilar, deleteAllVectors } from '../../pinecone/connect'
-import { getEmbeddings } from '../../azure/connect'
+import { getEmbeddings as getEmbeddingsAzure } from '../../azure/connect'
 import { getEmbeddingsFromHfInference as getEmbeddingsHF } from '../../huggingFace/connnect'
 import { VectorSaveParams } from '../../interface'
 import { openaiPineconeIndex } from '../../pinecone/constants'
@@ -35,16 +35,19 @@ export async function POST(request: NextRequest) {
                     const { pageContent, metadata } = ctx || {}
                     return pageContent
                 })
-                const vectors: number[][] = await getEmbeddingsHF({
+                const vectors: number[][] = await getEmbeddingsAzure({
                     textList,
                 })
+                console.log(`vectors=====>`, vectors?.length, vectors)
                 if (!_.isEmpty(vectors)) {
                     vectorsTotal += vectors?.length || 0
                     const completedVectors = _.map(vectors, (vector, index: number) => {
+                        const { pageContent, metadata } = chunkContext[index] || {}
+                        const saveToVectorMetadata = { ...metadata, pageContent }
                         return {
-                            id: `pdf-${chunkIndex}-${index}`,
+                            id: `${sha256_namespace}-${chunkIndex}-${index}`,
                             values: vector,
-                            metadata: chunkContext[index]?.metadata || {},
+                            metadata: saveToVectorMetadata,
                         }
                     })
                     console.log(`vertors from getEmbeddings completedVectors`, completedVectors)

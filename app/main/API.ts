@@ -1,8 +1,8 @@
 /// <reference lib="dom" />
 import Cookie from 'universal-cookie'
 import _ from 'lodash'
-import { VectorSaveParams } from './interface'
-import { API_BASE_URL } from './constants'
+import { VectorSaveParams, VectorSimilarParams } from './interface'
+import { API_BASE_URL, defaultLimitScore, defaultTopK } from './constants'
 
 const commonOptions: Partial<RequestInit> = {
     method: 'POST',
@@ -55,12 +55,12 @@ export const fetchVectorSave = async ({ contextList, name }: VectorSaveParams) =
     }
 }
 
-export const fetchVectorSimlar = async ({ text, name }: { text: string; name: string }) => {
+export const fetchVectorSimlar = async ({ text, name, score, topK }: VectorSimilarParams) => {
     const url = `${apiBaseUrl}/mapi/vector-similar`
     try {
         const result: any = await fetch(url, {
             ...commonOptions,
-            body: JSON.stringify({ text, name }),
+            body: JSON.stringify({ text, name, score: score || defaultLimitScore, topK: topK || defaultTopK }),
         })
 
         const resultJson = await result.json()

@@ -4,15 +4,20 @@ import { VectorSimilarParams } from '../../interface'
 import { getEmbeddings } from '../../azure/connect'
 import { findSimilar } from '../../pinecone/connect'
 import { openaiPineconeIndex } from '../../pinecone/constants'
+import { sha256_16bit } from '../../util'
+
 export async function POST(request: NextRequest) {
     const body: VectorSimilarParams = await request.json()
 
-    const resultJson = vectorSimilar({ ...body, score: 0.1 })
+    const resultJson = await vectorSimilar({ ...body })
+    console.log(`resultJson`, resultJson)
     return NextResponse.json({ ...resultJson }, { status: 200 })
 }
-
+const defaultLimitScore = 0.1
 const vectorSimilar = async (body: VectorSimilarParams) => {
-    const { text, name: namespace } = body || {}
+    const { text, name, topK } = body || {}
+    const namespace = sha256_16bit(name)
+    const limitScore = body?.score || defaultLimitScore
     const returnResuslt = {
         status: -1,
         error: {
@@ -46,9 +51,12 @@ const vectorSimilar = async (body: VectorSimilarParams) => {
         index: openaiPineconeIndex,
         namespace,
         vector: queryVector,
+        topK,
     })
+    console.log(`similar result,`, namespace, result)
 
-    if (_.isEmpty(result?.[0]))
+    if (_.isEmpty(result?.[0])) {
+        console.log(`is empty`, returnResuslt)
         return {
             ...returnResuslt,
             error: {
@@ -57,20 +65,22 @@ const vectorSimilar = async (body: VectorSimilarParams) => {
             },
             result,
         }
+    }
+    console.log(`🐹🐹🐹original result🐹🐹🐹`, result)
 
-    const getAllContentOverSeven = _.compact(
+    const getAllContentOverScore = _.compact(
         _.map(result, r => {
             const { metadata, score } = r || {}
-            if (score > 0.1 && metadata?.pageContent) {
+            if (score > limitScore && metadata?.pageContent) {
                 return metadata.pageContent
             } else {
                 return null
             }
         })
     )
-    console.log(`🐹🐹🐹original result🐹🐹🐹`, result)
-    console.log(`getAllContentOverSeven`, getAllContentOverSeven)
-    if (!getAllContentOverSeven?.length) {
+
+    console.log(`getAllContentOverScore`, getAllContentOverScore)
+    if (!getAllContentOverScore?.length) {
         return {
             ...returnResuslt,
             error: {
@@ -83,6 +93,6 @@ const vectorSimilar = async (body: VectorSimilarParams) => {
 
     return {
         status: 0,
-        content: getAllContentOverSeven.join('\n'),
+        content: getAllContentOverScore.join('\n'),
     }
 }
