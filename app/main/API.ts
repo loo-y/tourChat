@@ -1,12 +1,12 @@
 /// <reference lib="dom" />
 import Cookie from 'universal-cookie'
 import _ from 'lodash'
-import { VectorSaveParams, VectorSimilarParams } from './interface'
+import { VectorSaveParams, VectorSimilarParams, QuizParams } from './interface'
 import { API_BASE_URL, defaultLimitScore, defaultTopK } from './constants'
 
 const commonOptions: Partial<RequestInit> = {
     method: 'POST',
-    mode: 'no-cors',
+    // mode: 'no-cors',
     headers: {
         'Content-Type': 'application/json',
     },
@@ -61,6 +61,26 @@ export const fetchVectorSimlar = async ({ text, name, score, topK }: VectorSimil
         const result: any = await fetch(url, {
             ...commonOptions,
             body: JSON.stringify({ text, name, score: score || defaultLimitScore, topK: topK || defaultTopK }),
+        })
+        const resultJson = await result.json()
+        return {
+            status: true,
+            result: resultJson,
+        }
+    } catch (e) {
+        return {
+            status: false,
+            error: e,
+        }
+    }
+}
+
+export const fetchOnceChat = async ({ content, question }: QuizParams) => {
+    const url = `${apiBaseUrl}/mapi/quiz`
+    try {
+        const result: any = await fetch(url, {
+            ...commonOptions,
+            body: JSON.stringify({ content, question }),
         })
 
         const resultJson = await result.json()

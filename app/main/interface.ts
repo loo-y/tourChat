@@ -4,6 +4,7 @@ export interface MainState {
     chatList: ChatItem[]
     productId: number
     requestInQueueFetching: boolean
+    onceChatContent?: string
 }
 
 export interface ChatItem {

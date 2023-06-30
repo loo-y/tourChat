@@ -1,8 +1,8 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { AppState, AppThunk } from '../store'
 import * as API from './API'
-import { fetchCount, fetchChatList, fetchVectorSave } from './API'
-import { MainState, VectorSaveParams } from './interface'
+import { fetchCount, fetchChatList, fetchVectorSave, fetchVectorSimlar, fetchOnceChat } from './API'
+import { MainState, VectorSaveParams, QuizParams } from './interface'
 import _ from 'lodash'
 import type { AsyncThunk } from '@reduxjs/toolkit'
 import { vectorNameSpace } from './constants'
@@ -109,7 +109,7 @@ export const findSimilarContent = createAsyncThunk(
 
         dispatch(
             makeApiRequestInQueue({
-                apiRequest: API.fetchVectorSimlar.bind(null, {
+                apiRequest: fetchVectorSimlar.bind(null, {
                     name:
                         params?.name ||
                         (mainState?.productId ? `Product_${mainState.productId}` : undefined) ||
@@ -117,6 +117,24 @@ export const findSimilarContent = createAsyncThunk(
                     ...params,
                 }),
                 asyncThunk: findSimilarContent,
+            })
+        )
+    }
+)
+
+export const getOnceChat = createAsyncThunk(
+    'mainSlice/getOnceChat',
+    async (params: Partial<QuizParams> & Pick<QuizParams, 'question'>, { dispatch, getState }: any) => {
+        const mainState: MainState = getMainState(getState())
+        const { content, question } = params || {}
+        const { onceChatContent } = mainState || {}
+        dispatch(
+            makeApiRequestInQueue({
+                apiRequest: fetchOnceChat.bind(null, {
+                    content: content || onceChatContent || '',
+                    question: question,
+                }),
+                asyncThunk: getOnceChat,
             })
         )
     }
@@ -145,7 +163,12 @@ export const mainSlice = createSlice({
             })
             .addCase(findSimilarContent.fulfilled, (state, action) => {
                 console.log(`findSimilarContent.fulfilled`, action.payload)
-                return { ...state }
+                const { status, result, error } = (action.payload as any) || {}
+                let onceChatContent = state?.onceChatContent || ``
+                if (status && result?.content) {
+                    onceChatContent = result.content
+                }
+                return { ...state, onceChatContent }
             })
     },
 })

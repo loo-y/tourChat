@@ -8,10 +8,10 @@ import { sha256_16bit } from '../../util'
 
 export async function POST(request: NextRequest) {
     const body: VectorSimilarParams = await request.json()
-
     const resultJson = await vectorSimilar({ ...body })
-    console.log(`resultJson`, resultJson)
-    return NextResponse.json({ ...resultJson }, { status: 200 })
+    const response = NextResponse.json({ ...resultJson })
+    response.headers.set('Access-Control-Allow-Origin', '*')
+    return response
 }
 const defaultLimitScore = 0.1
 const vectorSimilar = async (body: VectorSimilarParams) => {

@@ -1,6 +1,6 @@
 'use client'
 import { useAppSelector, useAppDispatch } from '@/app/hooks'
-import { getMainState, findSimilarContent } from '../slice'
+import { getMainState, findSimilarContent, getOnceChat } from '../slice'
 import _ from 'lodash'
 import { useRef, useState } from 'react'
 
@@ -21,6 +21,7 @@ const ChatTextarea = () => {
     const handleClickSendQuestion = () => {
         if (replicatedValue) {
             dispatch(findSimilarContent({ text: replicatedValue, name: `Product_${productId}` }))
+            dispatch(getOnceChat({ question: replicatedValue }))
         }
     }
     return (

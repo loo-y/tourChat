@@ -10,6 +10,10 @@ export interface VectorSimilarParams {
     score?: number
 }
 
+export interface QuizParams {
+    content: string
+    question: string
+}
 // ********** helper**********
 
 // try to define a new decimal type

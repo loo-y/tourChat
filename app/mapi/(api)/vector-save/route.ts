@@ -11,15 +11,19 @@ interface VectorSaveStream extends ReadableStream<Uint8Array>, VectorSaveParams 
 
 export async function POST(request: NextRequest) {
     const body: VectorSaveParams = await request.json()
-    const { contextList, name } = body || {}
+    const resultJson = await vectorSave(body)
+    const response = NextResponse.json({ ...resultJson })
+    response.headers.set('Access-Control-Allow-Origin', '*')
+    return response
+}
 
+const vectorSave = async (params: VectorSaveParams) => {
+    const { contextList, name } = params || {}
     const sha256_namespace = sha256_16bit(name)
 
     if (_.isEmpty(contextList)) {
-        return NextResponse.json({ satus: -1 })
+        return { satus: -1 }
     }
-
-    // return NextResponse.json({ satus: 0, body, chunkContextList })
 
     // delete first
     await deleteAllVectors({ index: openaiPineconeIndex, namespace: sha256_namespace })
@@ -62,5 +66,5 @@ export async function POST(request: NextRequest) {
         })
     )
 
-    return NextResponse.json({ upsertedTotalCount, vectorsTotal, namespace: sha256_namespace }, { status: 200 })
+    return { upsertedTotalCount, vectorsTotal, namespace: sha256_namespace }
 }
