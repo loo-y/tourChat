@@ -3,7 +3,7 @@
 import { useAppSelector, useAppDispatch } from '@/app/hooks'
 import { getMainState, updateNameForSpace, saveContentToVector } from '../slice'
 import { useCallback, useEffect, useState } from 'react'
-import { VectorSaveParams, PageType, CommandType } from '../interface'
+import { VectorSaveParams, PageType, CommandType, VectorSaveStatus } from '../interface'
 import _ from 'lodash'
 declare var chrome: any
 
@@ -53,7 +53,7 @@ const PageContent = () => {
                 const selector = (pageData || {})[selectorNodeKey]
                 const { htmlcontent, state: pageState } = selector || {}
                 // htmlcontent && setDocumentHtml(htmlcontent)
-                htmlcontent && setDocumentHtml('<h2>Get Page Html Succeed!!</h2>')
+                // htmlcontent && setDocumentHtml('<h2>Get Page Html Succeed!!</h2>')
                 console.log(`get htmlcontent from Page===>`, htmlcontent)
                 console.log(`get State from Page===>`, pageState)
                 if (pageType) {
@@ -97,7 +97,7 @@ const PageContent = () => {
                 Please try to get page content first.
                 <br />
                 Current page type is {pageType}
-                {vetcorSaveStatus ? (
+                {vetcorSaveStatus == VectorSaveStatus.success ? (
                     <>
                         <br />
                         <span className="text-green-500">Save to vector succeed!</span>
@@ -120,7 +120,9 @@ const PageContent = () => {
                     <div dangerouslySetInnerHTML={{ __html: documentHtml }} />
                 </div>
             )}
-            {onceChatAnswer ? <div className="mx-auto w-full max-w-6xl mb-1">{onceChatAnswer}</div> : null}
+            {onceChatAnswer ? (
+                <div className="mx-auto w-full max-w-6xl mb-1 bg-white mt-2">{onceChatAnswer}</div>
+            ) : null}
         </>
     )
 }

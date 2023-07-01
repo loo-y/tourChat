@@ -6,7 +6,7 @@ export interface MainState {
     requestInQueueFetching: boolean
     onceChatContent?: string
     nameForSpace: string
-
+    onceChatAnswer: string
     vetcorSaveStatus: VectorSaveStatus
 }
 
