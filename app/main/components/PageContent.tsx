@@ -10,6 +10,7 @@ declare var chrome: any
 const PageContent = () => {
     const dispatch = useAppDispatch()
     const state = useAppSelector(getMainState)
+    const { vetcorSaveStatus, onceChatAnswer } = state || {}
     const [documentHtml, setDocumentHtml] = useState<string>('')
     const [selectorNodeKey, setSelectorNodeKey] = useState<string>('.imvc-view-item')
     const [pageType, setPageType] = useState<string>('')
@@ -32,24 +33,22 @@ const PageContent = () => {
             const { pageData, source, type, url } = requestFromChrome || {}
             console.log(`type`, type)
             if (type == CommandType.getUrl) {
-                let matchFirstPath = url && url.match(/\/([^\/\.]+)\//)
-                matchFirstPath = matchFirstPath?.[1]
-                console.log(`matchFirstPath`, url, matchFirstPath)
-                if (matchFirstPath) {
-                    switch (matchFirstPath) {
+                const matchPathList = url ? url.match(/(?<=\/)([^\/\.\?]+)/g) || [] : []
+                _.find(matchPathList, path => {
+                    switch (path) {
                         case 'list':
                             setPageType(PageType.list)
-                            break
+                            return true
                         case 'detail':
                             setPageType(PageType.detail)
-                            break
+                            return true
                         case 'orderv3':
                             setPageType(PageType.order)
-                            break
+                            return true
                         default:
                             break
                     }
-                }
+                })
             } else if (type == CommandType.getPageContent) {
                 const selector = (pageData || {})[selectorNodeKey]
                 const { htmlcontent, state: pageState } = selector || {}
@@ -94,7 +93,17 @@ const PageContent = () => {
 
     return (
         <>
-            <div>pageType: {pageType}</div>
+            <div className="mx-auto w-full max-w-6xl mb-1">
+                Please try to get page content first.
+                <br />
+                Current page type is {pageType}
+                {vetcorSaveStatus ? (
+                    <>
+                        <br />
+                        <span className="text-green-500">Save to vector succeed!</span>
+                    </>
+                ) : null}
+            </div>
             <div className="mx-auto w-full max-w-6xl rounded-2xl bg-white p-2">
                 <button
                     type="button"
@@ -111,6 +120,7 @@ const PageContent = () => {
                     <div dangerouslySetInnerHTML={{ __html: documentHtml }} />
                 </div>
             )}
+            {onceChatAnswer ? <div className="mx-auto w-full max-w-6xl mb-1">{onceChatAnswer}</div> : null}
         </>
     )
 }
@@ -125,37 +135,36 @@ const sendCommandToServiceWorker = (message?: string) => {
 
 const regonizePagestateToContent = (
     pageState: any
-): { productId: number; contextList: { [index: string]: VectorSaveParams['contextList'] } } => {
-    let introductionInfo: VectorSaveParams['contextList'] = []
+): { productId: number; contextList: VectorSaveParams['contextList'] } => {
+    let introductionInfo: { pageContent: string; metadata?: { [index: string]: any } }
     const { itineraryInfo, productId } = pageState || {}
     const { IntroductionInfoList } = itineraryInfo || {}
-
-    introductionInfo = _.map(IntroductionInfoList || [], IntroductionInfo => {
+    let introductionInfoMetadata = { type: 'introductionInfo' }
+    const introductionInfoPageContent = _.map(IntroductionInfoList || [], IntroductionInfo => {
         const { DailyList, Desc, FewDay = 0 } = IntroductionInfo || {}
         const dailyInfo = _.map(DailyList, Daily => {
             const { TakeTime, DepartTime, Desc: DailyDesc } = Daily || {}
             return `时间:${DepartTime}, ${DailyDesc}, ${TakeTime || ''};`
         })
-        return {
-            pageContent: `Day${FewDay}: ${Desc}, 当日安排: ${dailyInfo}`,
-            metadata: { day: FewDay },
-        }
-    })
+        return `Day${FewDay}: ${Desc}, 当日安排: ${dailyInfo}`
+    }).join(';\n')
+
+    introductionInfo = {
+        pageContent: introductionInfoPageContent,
+        metadata: introductionInfoMetadata,
+    }
 
     return {
         productId: Number(productId) || 0,
-        contextList: {
-            introductionInfo,
-        },
+        contextList: [introductionInfo],
     }
 }
 
 const getDetailPageContent = (pageState: any) => {
     let contentBlock: VectorSaveParams
     const { contextList, productId } = regonizePagestateToContent(pageState)
-    const { introductionInfo } = contextList || {}
     contentBlock = {
-        contextList: introductionInfo,
+        contextList: contextList,
         name: `Product_${productId}`,
     }
 

@@ -2,7 +2,25 @@ const Match_URL = 'ctrip.com'
 
 const mainPage = './dist/main.html'
 
-// chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
+chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
+    if (!tab.url) return
+    const url = new URL(tab.url)
+    if (url.origin.includes(Match_URL)) {
+        await chrome.sidePanel.setOptions({
+            tabId,
+            path: mainPage,
+            enabled: true,
+        })
+        chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(error => console.error(error));
+    } else {
+        // Disables the side panel on all other sites
+        await chrome.sidePanel.setOptions({
+            tabId,
+            enabled: false,
+        })
+    }
+})
+
 chrome.tabs.onActivated.addListener(async ({tabId}) => {
     const tab = await chrome.tabs.get(tabId);
     console.log(`tab`, tab, tab.url)
@@ -15,18 +33,7 @@ chrome.tabs.onActivated.addListener(async ({tabId}) => {
             path: mainPage,
             enabled: true,
         })
-        console.log(`chrome.sidePanel`)
-        // setTimeout(()=>{
-        //     chrome.runtime.sendMessage({data: "data from service-worker"}, function(response) {
-        //         console.log(response);
-        //     });
-        // }, 1000)
-
-        // runtime message: https://developer.chrome.com/docs/extensions/reference/runtime/#event-onMessage
-        // mainPage send message to service-worker, 
-        // service-worker get message from mainPage, then send message to content-script
         chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(error => console.error(error));
-
     } else {
         // Disables the side panel on all other sites
         await chrome.sidePanel.setOptions({
@@ -48,7 +55,7 @@ chrome.runtime.onMessage.addListener(async function(request, sender, sendRespons
         return;
     }
 
-    const [tab] = await chrome.tabs.query({active: true, lastFocusedWindow: true});
+    const [tab] = await chrome.tabs.query({active: true });
     const url = new URL(tab.url)
 
     if(type == "getUrl"){

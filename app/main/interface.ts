@@ -6,8 +6,16 @@ export interface MainState {
     requestInQueueFetching: boolean
     onceChatContent?: string
     nameForSpace: string
+
+    vetcorSaveStatus: VectorSaveStatus
 }
 
+export enum VectorSaveStatus {
+    loading = 'vectorSaveStatus_loading',
+    success = 'vectorSaveStatus_success',
+    fail = 'vectorSaveStatus_fail',
+    unset = 'vectorSaveStatus_unset',
+}
 export interface ChatItem {
     ai: string
     human: string

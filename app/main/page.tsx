@@ -15,14 +15,13 @@ const Main: NextPage<{ serverSideData: any }, any> = ({ serverSideData }: { serv
         <div className="main">
             <div className="px-5 w-full pt-4">
                 <div className="w-full px-4">
-                    <div className="mx-auto w-full max-w-6xl rounded-2xl bg-white p-2 mb-4">
+                    <div className="mx-auto w-full max-w-6xl rounded-2xl bg-white p-4 mb-4">
                         <div className="lg:flex lg:items-center lg:justify-between">
                             <div className="min-w-0 flex-1">
                                 <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-                                    Tour-Chat Main
+                                    Hi, This is Tour-Chat
                                 </h2>
                             </div>
-                            <br />
                         </div>
                     </div>
                     <PageContent />

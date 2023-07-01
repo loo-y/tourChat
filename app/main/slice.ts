@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { AppState, AppThunk } from '../store'
 import * as API from './API'
 import { fetchCount, fetchChatList, fetchVectorSave, fetchVectorSimlar, fetchOnceChat } from './API'
-import { MainState, VectorSaveParams, QuizParams } from './interface'
+import { MainState, VectorSaveParams, QuizParams, VectorSaveStatus } from './interface'
 import _ from 'lodash'
 import type { AsyncThunk } from '@reduxjs/toolkit'
 import { vectorNameSpace } from './constants'
@@ -69,9 +69,11 @@ const makeApiRequestInQueue = createAsyncThunk(
 
 const initialState: MainState = {
     requestInQueueFetching: false,
+    onceChatAnswer: '',
     chatList: [],
     productId: 0,
     nameForSpace: ``,
+    vetcorSaveStatus: VectorSaveStatus.unset,
 }
 
 export const chatListAsync = createAsyncThunk(
@@ -126,6 +128,10 @@ export const getOnceChat = createAsyncThunk(
         const mainState: MainState = getMainState(getState())
         const { content, question } = params || {}
         const { onceChatContent } = mainState || {}
+
+        // remove last answer
+        dispatch(updateState({ onceChatAnswer: '' }))
+
         dispatch(
             makeApiRequestInQueue({
                 apiRequest: fetchOnceChat.bind(null, {
@@ -151,6 +157,9 @@ export const mainSlice = createSlice({
         setRequestInQueueFetching: (state, action: PayloadAction<boolean>) => {
             state.requestInQueueFetching = action.payload
         },
+        updateState: (state, action: PayloadAction<Partial<MainState>>) => {
+            return { ...state, ...action.payload }
+        },
     },
     extraReducers: builder => {
         builder
@@ -160,7 +169,8 @@ export const mainSlice = createSlice({
             })
             .addCase(saveContentToVector.fulfilled, (state, action) => {
                 console.log(`saveContentToVector.fulfilled`, action.payload)
-                return { ...state }
+                const { status } = (action.payload as any) || {}
+                state.vetcorSaveStatus = status ? VectorSaveStatus.success : VectorSaveStatus.fail
             })
             .addCase(findSimilarContent.fulfilled, (state, action) => {
                 console.log(`findSimilarContent.fulfilled`, action.payload)
@@ -171,9 +181,16 @@ export const mainSlice = createSlice({
                 }
                 return { ...state, onceChatContent }
             })
+            .addCase(getOnceChat.fulfilled, (state, action) => {
+                console.log(`getOnceChat.fulfilled`, action.payload)
+                const { status, result, error } = (action.payload as any) || {}
+                const answerContent = status && result?.response?.data?.content
+                let onceChatAnswer = answerContent || state?.onceChatAnswer || ``
+                return { ...state, onceChatAnswer }
+            })
     },
 })
 
 // export actions
-export const { updateProductId, updateNameForSpace } = mainSlice.actions
+export const { updateProductId, updateNameForSpace, updateState } = mainSlice.actions
 export default mainSlice.reducer
