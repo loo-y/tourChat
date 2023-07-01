@@ -9,6 +9,7 @@ const {
     azureOpenAIApiKey,
     azureOpenAIApiInstanceName,
     azureOpenAIApiDeployment_GTP35Turbo,
+    azureOpenAIApiDeployment_GTP35Turbo16k,
     azureOpenAIApiDeployment_TextDavinci003,
     azureOpenAIApiDeployment_TextEmbeddingAda002,
     azureOpenAIApiVersion,
@@ -25,7 +26,7 @@ const params_GPT35Turbo = {
     modelName: AZURE_MODELS.GPT35Turbo,
     azureOpenAIApiKey,
     azureOpenAIApiInstanceName,
-    azureOpenAIApiDeploymentName: azureOpenAIApiDeployment_GTP35Turbo,
+    azureOpenAIApiDeploymentName: azureOpenAIApiDeployment_GTP35Turbo16k,
     azureOpenAIApiVersion,
 }
 const modelGPT35Turbo = new OpenAI({
@@ -82,5 +83,14 @@ const modelTextEmbeddingAda002 = new OpenAIEmbeddings({
     azureOpenAIApiVersion,
 })
 // *** 👆 TextEmbeddingAda002 👆 ***
-
-export { modelGPT35Turbo, modelChatGPT35Turbo, modelTextDavinci003, modelChatTextDavinci003, modelTextEmbeddingAda002 }
+const inputTokenLimitation = {
+    embeddings: 8191,
+}
+export {
+    modelGPT35Turbo,
+    modelChatGPT35Turbo,
+    modelTextDavinci003,
+    modelChatTextDavinci003,
+    modelTextEmbeddingAda002,
+    inputTokenLimitation,
+}
