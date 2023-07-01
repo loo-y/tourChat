@@ -41,7 +41,7 @@ const modelChatGPT35Turbo = new ChatOpenAI({
     temperature: 0.2, // stable
     topP: 0.3, // some stable
     ...params_GPT35Turbo,
-    maxTokens: 100,
+    // maxTokens: 1000,
 })
 // @ts-ignore azure 不支持bestOf
 modelChatGPT35Turbo.bestOf = undefined

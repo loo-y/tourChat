@@ -71,6 +71,7 @@ const initialState: MainState = {
     requestInQueueFetching: false,
     chatList: [],
     productId: 0,
+    nameForSpace: ``,
 }
 
 export const chatListAsync = createAsyncThunk(
@@ -110,10 +111,7 @@ export const findSimilarContent = createAsyncThunk(
         dispatch(
             makeApiRequestInQueue({
                 apiRequest: fetchVectorSimlar.bind(null, {
-                    name:
-                        params?.name ||
-                        (mainState?.productId ? `Product_${mainState.productId}` : undefined) ||
-                        vectorNameSpace,
+                    name: params?.name || mainState?.nameForSpace || vectorNameSpace,
                     ...params,
                 }),
                 asyncThunk: findSimilarContent,
@@ -144,6 +142,9 @@ export const mainSlice = createSlice({
     name: 'mainSlice',
     initialState,
     reducers: {
+        updateNameForSpace: (state, action: PayloadAction<string>) => {
+            state.nameForSpace = action.payload
+        },
         updateProductId: (state, action: PayloadAction<number>) => {
             state.productId = action.payload
         },
@@ -174,5 +175,5 @@ export const mainSlice = createSlice({
 })
 
 // export actions
-export const { updateProductId } = mainSlice.actions
+export const { updateProductId, updateNameForSpace } = mainSlice.actions
 export default mainSlice.reducer

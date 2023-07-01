@@ -20,7 +20,7 @@ const ChatTextarea = () => {
 
     const handleClickSendQuestion = () => {
         if (replicatedValue) {
-            dispatch(findSimilarContent({ text: replicatedValue, name: `Product_${productId}` }))
+            dispatch(findSimilarContent({ text: replicatedValue }))
             dispatch(getOnceChat({ question: replicatedValue }))
         }
     }

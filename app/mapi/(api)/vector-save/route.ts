@@ -32,49 +32,40 @@ const vectorSave = async (params: VectorSaveParams) => {
         contextList,
         tokenLimitation: inputTokenLimitation.embeddings,
     })
-    // return {chunkedContextList}
     // delete first
     await deleteAllVectors({ index: openaiPineconeIndex, namespace: sha256_namespace })
-
-    const chunkContextList = _.chunk(contextList, 5)
-    console.log(`🐹🐹🐹chunkDocs total: 🐹🐹🐹`, chunkContextList.length)
     let upsertedTotalCount = 0,
         vectorsTotal = 0
-    await Promise.all(
-        _.map(chunkContextList, (chunkContext, chunkIndex) => {
-            return (async () => {
-                const textList = _.map(chunkContext, (ctx: any) => {
-                    const { pageContent, metadata } = ctx || {}
-                    return pageContent
-                })
-                const vectors: number[][] = await getEmbeddingsAzure({
-                    textList,
-                })
-                console.log(`vectors=====>`, vectors?.length, vectors)
-                if (!_.isEmpty(vectors)) {
-                    vectorsTotal += vectors?.length || 0
-                    const completedVectors = _.map(vectors, (vector, index: number) => {
-                        const { pageContent, metadata } = chunkContext[index] || {}
-                        const saveToVectorMetadata = { ...metadata, pageContent }
-                        return {
-                            id: `${sha256_namespace}-${chunkIndex}-${index}`,
-                            values: vector,
-                            metadata: saveToVectorMetadata,
-                        }
-                    })
-                    console.log(`vertors from getEmbeddings completedVectors`, completedVectors)
-                    let upsertedCount = await insert({
-                        index: openaiPineconeIndex,
-                        vectors: completedVectors,
-                        namespace: sha256_namespace,
-                    })
-                    upsertedTotalCount += upsertedCount || 0
-                }
-            })()
-        })
-    )
+    const textList = _.map(chunkedContextList, (ctx: any) => {
+        const { pageContent, metadata } = ctx || {}
+        return pageContent
+    })
+    const vectors: number[][] = await getEmbeddingsAzure({
+        textList,
+    })
+    if (_.isEmpty(vectors)) {
+        return { upsertedTotalCount, vectorsTotal, namespace: sha256_namespace }
+    }
 
-    return { upsertedTotalCount, vectorsTotal, namespace: sha256_namespace }
+    vectorsTotal += vectors?.length || 0
+    const completedVectors = _.map(vectors, (vector, index: number) => {
+        const { pageContent, metadata } = chunkedContextList[index] || {}
+        const saveToVectorMetadata = { ...metadata, pageContent }
+        return {
+            id: `${sha256_namespace}-${index}`,
+            values: vector,
+            metadata: saveToVectorMetadata,
+        }
+    })
+    console.log(`vertors from getEmbeddings completedVectors`, completedVectors)
+    let upsertedCount = await insert({
+        index: openaiPineconeIndex,
+        vectors: completedVectors,
+        namespace: sha256_namespace,
+    })
+    upsertedTotalCount += upsertedCount || 0
+
+    return { upsertedTotalCount, vectorsTotal, namespace: sha256_namespace, completedVectors }
 }
 
 const chunkContextListByTokenLimitation = ({

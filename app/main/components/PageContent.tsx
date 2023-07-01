@@ -1,7 +1,7 @@
 'use client'
 // get and load page content from tab
 import { useAppSelector, useAppDispatch } from '@/app/hooks'
-import { getMainState, updateProductId, saveContentToVector } from '../slice'
+import { getMainState, updateNameForSpace, saveContentToVector } from '../slice'
 import { useCallback, useEffect, useState } from 'react'
 import { VectorSaveParams, PageType, CommandType } from '../interface'
 import _ from 'lodash'
@@ -61,11 +61,14 @@ const PageContent = () => {
                     switch (pageType) {
                         case PageType.list:
                             const listPageContent = getListPageContent(pageState)
+                            const listPageNameForSpace = listPageContent?.contentBlock?.name || ''
+                            dispatch(updateNameForSpace(listPageNameForSpace))
                             dispatch(saveContentToVector(listPageContent.contentBlock))
                             break
                         case PageType.detail:
                             const detailPageContent = getDetailPageContent(pageState)
-                            dispatch(updateProductId(detailPageContent.productId))
+                            const detailPageNameForSpace = detailPageContent?.contentBlock?.name || ''
+                            dispatch(updateNameForSpace(detailPageNameForSpace))
                             dispatch(saveContentToVector(detailPageContent.contentBlock))
                             break
                         case PageType.order:
