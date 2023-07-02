@@ -122,7 +122,10 @@ const PageContent = () => {
             )}
             {onceChatAnswer ? (
                 <div className="mx-auto w-full max-w-6xl mb-1 rounded-2xl p-2 bg-white mt-2">
-                    <pre>{onceChatAnswer}</pre>
+                    <div
+                        className="whitespace-pre-line"
+                        dangerouslySetInnerHTML={{ __html: onceChatAnswer.replace(/\n/g, '<br />') }}
+                    />
                 </div>
             ) : null}
         </>
