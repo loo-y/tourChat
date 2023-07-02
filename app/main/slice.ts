@@ -94,6 +94,7 @@ export const chatListAsync = createAsyncThunk(
 export const saveContentToVector = createAsyncThunk(
     'mainSlice/saveContentToVector',
     async (params: VectorSaveParams, { dispatch, getState }: any) => {
+        dispatch(updateState({ vetcorSaveStatus: VectorSaveStatus.loading }))
         dispatch(
             makeApiRequestInQueue({
                 apiRequest: fetchVectorSave.bind(null, {
@@ -180,8 +181,12 @@ export const mainSlice = createSlice({
             })
             .addCase(saveContentToVector.fulfilled, (state, action) => {
                 console.log(`saveContentToVector.fulfilled`, action.payload)
-                const { status } = (action.payload as any) || {}
-                state.vetcorSaveStatus = status ? VectorSaveStatus.success : VectorSaveStatus.fail
+                if (action.payload as any) {
+                    const { status } = (action.payload as any) || {}
+                    state.vetcorSaveStatus = status ? VectorSaveStatus.success : VectorSaveStatus.fail
+                } else {
+                    return { ...state }
+                }
             })
             .addCase(findSimilarContent.fulfilled, (state, action) => {
                 console.log(`findSimilarContent.fulfilled`, action.payload)

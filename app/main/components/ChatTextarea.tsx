@@ -3,12 +3,13 @@ import { useAppSelector, useAppDispatch } from '@/app/hooks'
 import { getMainState, findSimilarContent, getOnceChat } from '../slice'
 import _ from 'lodash'
 import { useRef, useState } from 'react'
-import { OnceChatStatus } from '../interface'
+import { OnceChatStatus, VectorSaveStatus } from '../interface'
+import LoadingSVG from './LoadingSVG'
 
 const ChatTextarea = () => {
     const dispatch = useAppDispatch()
     const state = useAppSelector(getMainState)
-    const { onceChatStatus } = state
+    const { onceChatStatus, vetcorSaveStatus } = state
     console.log(`onceChatStatus`, onceChatStatus)
     const textareaRef = useRef(null)
     const [replicatedValue, setReplicatedValue] = useState<string>(' ')
@@ -26,6 +27,11 @@ const ChatTextarea = () => {
             dispatch(getOnceChat({ question: replicatedValue }))
         }
     }
+
+    if (vetcorSaveStatus != VectorSaveStatus.success) {
+        return null
+    }
+
     return (
         <div className="w-full fixed left-0 bottom-4 px-[2.25rem]">
             <div className="mx-auto w-full max-w-6xl ">
@@ -53,7 +59,7 @@ const ChatTextarea = () => {
                             className={`w-[56px] leading-9 rounded-md align-bottom bg-indigo-600 px-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 sm:ml-3 sm:w-[56px] relative `}
                         >
                             {onceChatStatus == OnceChatStatus.loading ? (
-                                <LoadingSVG customClass={'align-top mt-2'} />
+                                <LoadingSVG customClass={'align-top'} />
                             ) : (
                                 'send'
                             )}
@@ -66,23 +72,3 @@ const ChatTextarea = () => {
 }
 
 export default ChatTextarea
-
-const LoadingSVG = ({ customClass }: { customClass?: string }) => {
-    return (
-        <div className={`inline-block mx-1 ${customClass || ''}`}>
-            <svg
-                className="animate-spin  h-5 w-5 text-indigo-400"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-            >
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-            </svg>
-        </div>
-    )
-}

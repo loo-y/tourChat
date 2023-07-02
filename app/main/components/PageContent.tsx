@@ -4,6 +4,7 @@ import { useAppSelector, useAppDispatch } from '@/app/hooks'
 import { getMainState, updateNameForSpace, saveContentToVector } from '../slice'
 import { useCallback, useEffect, useState } from 'react'
 import { VectorSaveParams, PageType, CommandType, VectorSaveStatus } from '../interface'
+import LoadingSVG from './LoadingSVG'
 import _ from 'lodash'
 declare var chrome: any
 
@@ -96,16 +97,27 @@ const PageContent = () => {
             <div className="mx-auto w-full max-w-6xl mb-1">
                 Please try to get page content first.
                 <br />
-                Current page type is {pageType}
+                Current page type is {String(pageType).toUpperCase()}
                 {vetcorSaveStatus == VectorSaveStatus.success ? (
                     <>
                         <br />
                         <span className="text-green-500">Save to vector succeed!</span>
                     </>
+                ) : vetcorSaveStatus == VectorSaveStatus.fail ? (
+                    <>
+                        <br />
+                        <span className="text-red-500">Save to vector failed!</span>
+                    </>
+                ) : vetcorSaveStatus == VectorSaveStatus.loading ? (
+                    <>
+                        <br />
+                        <LoadingSVG text="Now is saving page content" />
+                    </>
                 ) : null}
             </div>
             <div className="mx-auto w-full max-w-6xl rounded-2xl bg-white p-2">
                 <button
+                    disabled={vetcorSaveStatus == VectorSaveStatus.loading ? true : undefined}
                     type="button"
                     className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 sm:ml-3 sm:w-auto"
                     onClick={() => {
