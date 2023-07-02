@@ -25,6 +25,7 @@ const Main: NextPage<{ serverSideData: any }, any> = ({ serverSideData }: { serv
                         </div>
                     </div>
                     <PageContent />
+                    <ChatList />
                     <ChatTextarea />
                 </div>
             </div>

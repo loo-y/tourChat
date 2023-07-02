@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSlice, original, PayloadAction } from '@reduxjs/toolkit'
 import type { AppState, AppThunk } from '../store'
 import * as API from './API'
 import { fetchCount, fetchChatList, fetchVectorSave, fetchVectorSimlar, fetchOnceChat } from './API'
@@ -77,20 +77,6 @@ const initialState: MainState = {
     onceChatStatus: OnceChatStatus.idle,
 }
 
-export const chatListAsync = createAsyncThunk(
-    'mainSlice/fetchChatList',
-    async (sec: number | null, { dispatch, getState }: any) => {
-        const mainState: MainState = getMainState(getState())
-
-        dispatch(
-            makeApiRequestInQueue({
-                apiRequest: fetchChatList.bind(null, sec || 1),
-                asyncThunk: chatListAsync,
-            })
-        )
-    }
-)
-
 export const saveContentToVector = createAsyncThunk(
     'mainSlice/saveContentToVector',
     async (params: VectorSaveParams, { dispatch, getState }: any) => {
@@ -128,13 +114,28 @@ export const getOnceChat = createAsyncThunk(
     'mainSlice/getOnceChat',
     async (params: Partial<QuizParams> & Pick<QuizParams, 'question'>, { dispatch, getState }: any) => {
         const mainState: MainState = getMainState(getState())
+        const { chatList, nameForSpace } = mainState || {}
         const { content, question } = params || {}
         let onceChatContent = content
+        let newChatList = [...chatList]
+        newChatList.push({
+            ai: ``,
+            human: question,
+            timestamp: Date.now(),
+        })
+        console.log(`newchatlist`, newChatList)
         // remove last answer
-        dispatch(updateState({ onceChatAnswer: '', onceChatStatus: OnceChatStatus.loading }))
+        dispatch(
+            updateState({
+                onceChatAnswer: '',
+                onceChatStatus: OnceChatStatus.loading,
+                chatList: newChatList,
+            })
+        )
+
         if (!onceChatContent) {
             const simlarcontentResult = await fetchVectorSimlar({
-                name: mainState?.nameForSpace || vectorNameSpace,
+                name: nameForSpace || vectorNameSpace,
                 text: question,
             })
             const { status, result, error } = (simlarcontentResult as any) || {}
@@ -175,10 +176,6 @@ export const mainSlice = createSlice({
     },
     extraReducers: builder => {
         builder
-            .addCase(chatListAsync.fulfilled, (state, action) => {
-                console.log(`initInterviewAsync.fulfilled`, action.payload)
-                return { ...state }
-            })
             .addCase(saveContentToVector.fulfilled, (state, action) => {
                 console.log(`saveContentToVector.fulfilled`, action.payload)
                 if (action.payload as any) {
@@ -200,10 +197,22 @@ export const mainSlice = createSlice({
             .addCase(getOnceChat.fulfilled, (state, action) => {
                 console.log(`getOnceChat.fulfilled`, action.payload)
                 const { status, result, error } = (action.payload as any) || {}
-                const answerContent = status && result?.response?.data?.content
-                let onceChatAnswer = answerContent || state?.onceChatAnswer || ``
-                let onceChatStatus = (action.payload as any) ? OnceChatStatus.idle : state.onceChatStatus
-                return { ...state, onceChatAnswer, onceChatStatus }
+                if (!_.isEmpty(result)) {
+                    const chatList = original(state)?.chatList || []
+                    let newChatList = [...chatList]
+                    const answerContent = status && result?.response?.data?.content
+                    if (answerContent && newChatList?.length > 0) {
+                        newChatList[newChatList.length - 1] = {
+                            ...newChatList[newChatList.length - 1],
+                            ai: answerContent,
+                        }
+                    }
+                    let onceChatAnswer = answerContent || state?.onceChatAnswer || ``
+                    let onceChatStatus = OnceChatStatus.idle
+                    return { ...state, onceChatAnswer, onceChatStatus, chatList: newChatList }
+                } else {
+                    return { ...state }
+                }
             })
     },
 })
