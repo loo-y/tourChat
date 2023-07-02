@@ -19,13 +19,13 @@ const ChatList = () => {
 
     return (
         <>
-            <div className="mx-auto w-full max-w-6xl mb-1 rounded-2xl p-2 bg-white mt-2">
+            <div className="mx-auto w-full max-w-6xl mb-2 rounded-2xl p-2 bg-white mt-2">
                 {_.map(chatList, (chat, index) => {
                     const { timestamp, ai, human } = chat || {}
                     return (
-                        <div key={`chatlist_${timestamp}_${index}`}>
+                        <div key={`chatlist_${timestamp}_${index}`} className={`rounded-xl p-2 my-2 bg-slate-200`}>
                             <div className="flex flex-row">
-                                <div className="flex flex-col">{human}</div>
+                                <div className="flex flex-col text-blue-500">{human}</div>
                             </div>
                             <div className="flex flex-row">
                                 <div className="flex flex-col">
