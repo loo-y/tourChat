@@ -128,15 +128,25 @@ export const getOnceChat = createAsyncThunk(
     async (params: Partial<QuizParams> & Pick<QuizParams, 'question'>, { dispatch, getState }: any) => {
         const mainState: MainState = getMainState(getState())
         const { content, question } = params || {}
-        const { onceChatContent } = mainState || {}
-
+        let onceChatContent = content
         // remove last answer
-        dispatch(updateState({ onceChatAnswer: '' }))
+        dispatch(updateState({ onceChatAnswer: '', onceChatStatus: OnceChatStatus.loading }))
+        if (!onceChatContent) {
+            const simlarcontentResult = await fetchVectorSimlar({
+                name: mainState?.nameForSpace || vectorNameSpace,
+                text: question,
+            })
+            const { status, result, error } = (simlarcontentResult as any) || {}
+            if (status && result?.content) {
+                onceChatContent = result.content
+                dispatch(updateState({ onceChatContent }))
+            }
+        }
 
         dispatch(
             makeApiRequestInQueue({
                 apiRequest: fetchOnceChat.bind(null, {
-                    content: content || onceChatContent || '',
+                    content: onceChatContent || '',
                     question: question,
                 }),
                 asyncThunk: getOnceChat,
