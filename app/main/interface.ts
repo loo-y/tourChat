@@ -8,8 +8,13 @@ export interface MainState {
     nameForSpace: string
     onceChatAnswer: string
     vetcorSaveStatus: VectorSaveStatus
+    onceChatStatus: OnceChatStatus
 }
 
+export enum OnceChatStatus {
+    loading = 'onceChatStatus_loading',
+    idle = 'onceChatStatus_idle',
+}
 export enum VectorSaveStatus {
     loading = 'vectorSaveStatus_loading',
     success = 'vectorSaveStatus_success',

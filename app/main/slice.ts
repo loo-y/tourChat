@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { AppState, AppThunk } from '../store'
 import * as API from './API'
 import { fetchCount, fetchChatList, fetchVectorSave, fetchVectorSimlar, fetchOnceChat } from './API'
-import { MainState, VectorSaveParams, QuizParams, VectorSaveStatus } from './interface'
+import { MainState, VectorSaveParams, QuizParams, VectorSaveStatus, OnceChatStatus } from './interface'
 import _ from 'lodash'
 import type { AsyncThunk } from '@reduxjs/toolkit'
 import { vectorNameSpace } from './constants'
@@ -74,6 +74,7 @@ const initialState: MainState = {
     productId: 0,
     nameForSpace: ``,
     vetcorSaveStatus: VectorSaveStatus.unset,
+    onceChatStatus: OnceChatStatus.idle,
 }
 
 export const chatListAsync = createAsyncThunk(
@@ -109,7 +110,7 @@ export const findSimilarContent = createAsyncThunk(
     'mainSlice/findSimilarContent',
     async (params: { text: string; name?: string }, { dispatch, getState }: any) => {
         const mainState: MainState = getMainState(getState())
-
+        dispatch(updateState({ onceChatStatus: OnceChatStatus.loading }))
         dispatch(
             makeApiRequestInQueue({
                 apiRequest: fetchVectorSimlar.bind(null, {
@@ -186,7 +187,8 @@ export const mainSlice = createSlice({
                 const { status, result, error } = (action.payload as any) || {}
                 const answerContent = status && result?.response?.data?.content
                 let onceChatAnswer = answerContent || state?.onceChatAnswer || ``
-                return { ...state, onceChatAnswer }
+                let onceChatStatus = (action.payload as any) ? OnceChatStatus.idle : state.onceChatStatus
+                return { ...state, onceChatAnswer, onceChatStatus }
             })
     },
 })

@@ -51,7 +51,7 @@ const ChatList = () => {
             <div className="mx-auto w-full max-w-6xl rounded-2xl bg-white p-2">
                 <button
                     type="button"
-                    className="inline-flex w-full justify-center rounded-md bg-violet-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 sm:ml-3 sm:w-auto"
+                    className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 sm:ml-3 sm:w-auto"
                     onClick={() => {
                         handleTest()
                     }}
