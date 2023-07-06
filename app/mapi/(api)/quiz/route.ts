@@ -40,7 +40,7 @@ const quiz = async ({ content, question }: { content: string; question: string }
     }
 
     const systemMessage =
-        new SystemChatMessage(`You are a helpful assistant. Answer the question as truthfully as possible using the provided text, and if the answer is not contained within the text below, say "I don't know". if answer is English, translate it in Chinese.
+        new SystemChatMessage(`You are a helpful assistant. Answer the question as truthfully as possible using the provided text, and please think step by step, and provide the reason of answer, and if the answer is not contained within the text below, say "I don't know". if answer is English, translate it in Chinese.
 
     Context:
     ${content}`)
