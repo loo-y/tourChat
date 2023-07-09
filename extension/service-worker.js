@@ -55,7 +55,7 @@ chrome.runtime.onMessage.addListener(async function(request, sender, sendRespons
         return;
     }
 
-    const [tab] = await chrome.tabs.query({active: true });
+    const [tab] = await chrome.tabs.query({active: true, currentWindow: true});
     const url = new URL(tab.url)
 
     if(type == "getUrl"){
